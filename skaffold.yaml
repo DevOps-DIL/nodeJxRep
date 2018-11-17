@@ -1,0 +1,31 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.DOCKER_REGISTRY}}/dani-izquierdo95-gmail-com/nodejxrep:{{.VERSION}}"
+  artifacts:
+  - imageName: changeme
+    workspace: .
+    docker: {}
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+profiles:
+- name: dev
+  build:
+    tagPolicy:
+      envTemplate:
+        template: "{{.DOCKER_REGISTRY}}/dani-izquierdo95-gmail-com/nodejxrep:{{.DIGEST_HEX}}"
+    artifacts:
+    - docker: {}
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: nodejxrep
+        chartPath: charts/nodejxrep
+        setValueTemplates:
+          image.repository: "{{.DOCKER_REGISTRY}}/dani-izquierdo95-gmail-com/nodejxrep"
+          image.tag: "{{.DIGEST_HEX}}"
